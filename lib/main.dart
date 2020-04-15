@@ -1,4 +1,5 @@
 import 'package:HappyHelper/pages/basket.dart';
+import 'package:HappyHelper/pages/villagers.dart';
 import 'package:HappyHelper/service/basket_service.dart';
 import 'package:HappyHelper/service/item_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,25 +40,26 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
             primaryColor: Color(0xFF534D41),
             accentColor: Colors.cyan[600],
-            backgroundColor: Color(0xFFF2EECA),
+            backgroundColor: Color(0xFFF3F0D3),
             brightness: Brightness.light,
             textTheme: TextTheme(
-                title: TextStyle(
+                headline1: TextStyle(fontSize: 42, color: Color(0xFF534D41)),
+                headline2: TextStyle(
                     fontSize: 60,
                     fontWeight: FontWeight.w500,
                     color: Color(0xFF534D41)),
-                subtitle: TextStyle(
+                headline3: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w500,
                     color: Color(0x99534D41)),
-                body1: TextStyle(fontSize: 22, color: Color(0xFF534D41)),
-                display2: TextStyle(
+                bodyText1: TextStyle(fontSize: 22, color: Color(0xFF534D41)),
+                bodyText2: TextStyle(
                     color: Colors.white, fontSize: 50)), // used by homebuttons
             fontFamily: 'FinkHeavy'),
         home: HomeButtons(),
         routes: <String, WidgetBuilder>{
           '/crafting': (BuildContext context) => Crafting(),
-          '/villagers': (BuildContext context) => Crafting(),
+          '/villagers': (BuildContext context) => Villagers(),
           '/critters': (BuildContext context) => Crafting(),
           '/basket': (BuildContext context) => Basket()
         });
@@ -80,9 +82,12 @@ class HomeButtons extends StatelessWidget {
                   Text(
                     "Happy Helper",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: ScreenUtil().setSp(150)),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline2
+                        .copyWith(fontSize: ScreenUtil().setSp(150)),
                   ),
-                  Divider(color: Colors.transparent, height: 100.h),
+                  Divider(color: Colors.transparent, height: 250.h),
                   _buildHomeButton("Crafting", Color(0xffDB8B68), context),
                   _buildHomeButton("Villagers", Color(0xff82E1C3), context),
                   _buildHomeButton("Critters", Color(0xffE9D179), context),

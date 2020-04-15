@@ -88,7 +88,7 @@ flutter:
   fonts:
     - family: FinkHeavy
       fonts:
-        - asset: assets/fonts/FinkHeavy.ttf
+        - asset: assets/fonts/FinkHeavy-Fix.ttf
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf

@@ -1,3 +1,4 @@
+import 'package:HappyHelper/model/villager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:HappyHelper/model/furniture.dart';
@@ -14,14 +15,34 @@ class FirebaseService {
   }
 
   Future<Map<String, Furniture>> getAllFurniture() async {
-    DataSnapshot snapshot = await _database.reference().child("furniture").once();
-    Map<String, Furniture> furniObjects =  new Map<String,Furniture>();
+    DataSnapshot snapshot = await _database
+        .reference()
+        .child("furniture")
+        .orderByChild("name")
+        .once();
+    Map<String, Furniture> furniObjects = new Map<String, Furniture>();
 
-    Map<String, dynamic> json = new Map<String,dynamic>.from(snapshot.value);
+    Map<String, dynamic> json = new Map<String, dynamic>.from(snapshot.value);
     json.forEach((key, value) {
       furniObjects.putIfAbsent(key, () => Furniture.fromDb(value));
     });
 
     return furniObjects;
+  }
+
+  Future<Map<String, Villager>> getAllVillagers() async {
+    DataSnapshot snapshot = await _database
+        .reference()
+        .child("villagers")
+        .orderByChild("name")
+        .once();
+    Map<String, Villager> villagerObjects = new Map<String, Villager>();
+
+    Map<String, dynamic> json = new Map<String, dynamic>.from(snapshot.value);
+    json.forEach((key, value) {
+      villagerObjects.putIfAbsent(key, () => Villager.fromDb(value));
+    });
+
+    return villagerObjects;
   }
 }

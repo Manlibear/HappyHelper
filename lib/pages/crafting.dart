@@ -1,5 +1,6 @@
 import 'package:HappyHelper/service/basket_service.dart';
 import 'package:HappyHelper/service/item_service.dart';
+import 'package:HappyHelper/widgets/NookCard.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,6 @@ class Crafting extends StatefulWidget {
 }
 
 class _CraftingState extends State<Crafting> {
-
   TextEditingController editingController = TextEditingController();
 
   FirebaseService _firebaseService = GetIt.I.get<FirebaseService>();
@@ -78,46 +78,16 @@ class _CraftingState extends State<Crafting> {
     setState(() {});
   }
 
-  Widget _buildCard(BuildContext ctx, Furniture furni, Function onTapFunc) {
-    return GestureDetector(
-      onTap: () => onTapFunc(furni),
-      child: new Material(
-        elevation: 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        color: Colors.white,
-        child: Stack(fit: StackFit.expand, children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(6),
-            child: Material(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                color: Color(0xFFEDDFB8),
-                child: ClipRRect(
-                  borderRadius: new BorderRadius.circular(8.0),
-                  child: Image(
-                    image: AssetImage("assets/images/acorns.png"),
-                    repeat: ImageRepeat.repeatY,
-                    color: Color.fromARGB(10, 0, 0, 0),
-                  ),
-                )),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Image(
-                image: AssetImage("assets/images/items/" + furni.key + ".png")),
-          )
-        ]),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     basketItemsBadge = Badge(
-      badgeContent: Text(basketItemsCounts.toString()),
+      badgeContent: Padding(
+        padding: const EdgeInsets.only(top: 4.0),
+        child: Text(
+          basketItemsCounts.toString(),
+          style: TextStyle(fontSize: ScreenUtil().setSp(40)),
+        ),
+      ),
       position: BadgePosition.topRight(top: 0, right: 0),
       badgeColor: Colors.white,
       showBadge: basketItemsCounts > 0,
@@ -133,7 +103,6 @@ class _CraftingState extends State<Crafting> {
       ),
     );
 
-    
     ScreenUtil.init(context, width: 1080, height: 2280, allowFontScaling: true);
 
     return new Scaffold(
@@ -153,15 +122,13 @@ class _CraftingState extends State<Crafting> {
           backgroundColor: Theme.of(context).backgroundColor,
           elevation: 0,
           centerTitle: true,
-          iconTheme: IconThemeData(
-              color: Theme.of(context).primaryColor,
-              size: 42 //change your color here
-              ),
+          iconTheme:
+              IconThemeData(color: Theme.of(context).primaryColor, size: 42),
         ),
         body: Container(
             color: Theme.of(context).backgroundColor,
             child: Padding(
-              padding: const EdgeInsets.only(left:4, right: 4),
+              padding: const EdgeInsets.only(left: 4, right: 4),
               child: Column(
                 children: <Widget>[
                   Padding(
@@ -212,7 +179,7 @@ class _CraftingState extends State<Crafting> {
                       child: AnimationLimiter(
                     child: Scrollbar(
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 8.0, left:10, right: 10),
+                        padding: const EdgeInsets.only(left: 10, right: 10),
                         child: GridView.builder(
                           itemBuilder: (BuildContext ctx, int i) {
                             return AnimationConfiguration.staggeredGrid(
@@ -222,17 +189,21 @@ class _CraftingState extends State<Crafting> {
                                 child: SlideAnimation(
                                     verticalOffset: 50.0,
                                     child: FadeInAnimation(
-                                      child: _buildCard(
-                                          ctx,
-                                          furniture.values.toList()[i],
-                                          _showCraftingPopup),
+                                      child: NookCard(
+                                          imageFolder: "items",
+                                          imageKey:
+                                              furniture.values.toList()[i].key,
+                                          onTapFunc: _showCraftingPopup,
+                                          callbackParam:
+                                              furniture.values.toList()[i]),
                                     )));
                           },
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              childAspectRatio: 5 / 7,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  childAspectRatio: 5 / 7,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10),
                           itemCount: furniture.length,
                         ),
                       ),
@@ -257,21 +228,28 @@ class _CraftingState extends State<Crafting> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0),
                 ),
-                backgroundColor: Theme.of(context).backgroundColor,
+                backgroundColor: Color(0xFFF8F6E2),
                 children: <Widget>[
                   Column(
                     children: <Widget>[
                       Container(
                           width: 125,
                           height: 175,
-                          child: _buildCard(context, furni, () => {}))
+                          child: NookCard(
+                              imageFolder: "items",
+                              imageKey: furni.key,
+                              onTapFunc: () => {},
+                              callbackParam: null))
                     ],
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 15, bottom: 15),
                     child: Text(
                       furni.name ?? "[UNKNOWN]",
-                      style: Theme.of(context).textTheme.display1,
+                      style: Theme.of(context)
+                          .textTheme
+                          .display1
+                          .copyWith(fontSize: ScreenUtil().setSp(75)),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -285,13 +263,16 @@ class _CraftingState extends State<Crafting> {
                     child: Row(
                       children: <Widget>[
                         Container(
-                            width: 125,
+                            width: 325.w,
                             child: Padding(
                               padding: const EdgeInsets.only(right: 10),
                               child: Counter(
-                                valueSpacing: 45,
-                                textStyle: TextStyle(fontSize: 32),
-                                buttonSize: 30,
+                                valueSpacing: 110.w,
+                                textTopPadding: 10.w,
+                                textStyle: TextStyle(
+                                  fontSize: ScreenUtil().setSp(70),
+                                ),
+                                buttonSize: 80.w,
                                 color: Theme.of(context).primaryColor,
                                 decimalPlaces: 0,
                                 initialValue: _initialCraftingCount,
@@ -308,7 +289,8 @@ class _CraftingState extends State<Crafting> {
                           child: OutlineButton(
                             child: Text(
                               "Add to Basket",
-                              style: TextStyle(fontSize: 20),
+                              style:
+                                  TextStyle(fontSize: ScreenUtil().setSp(45)),
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5.0),
@@ -385,7 +367,7 @@ class _CraftingState extends State<Crafting> {
       drawChildren = false;
     }
 
-    Color rowColor = evenCraftingRow ? Color(0x99DAD1A8) : Color(0x99DDD4AB);
+    Color rowColor = evenCraftingRow ? Color(0x30E1D8B7) : Color(0x60E2D5AB);
     evenCraftingRow = !evenCraftingRow;
 
     return Material(
@@ -410,7 +392,11 @@ class _CraftingState extends State<Crafting> {
                   height: 36,
                 ),
               ),
-            Expanded(child: Text(itemName)),
+            Expanded(
+                child: Text(
+              itemName,
+              style: TextStyle(fontSize: ScreenUtil().setSp(50)),
+            )),
             Container(
               height: 36,
             ),
@@ -418,93 +404,13 @@ class _CraftingState extends State<Crafting> {
               padding: const EdgeInsets.only(right: 15),
               child: Text(
                 itemCount,
+                style: TextStyle(fontSize: ScreenUtil().setSp(50)),
                 textAlign: TextAlign.right,
               ),
             )
           ],
         )),
       ),
-    );
-  }
-}
-
-class CounterButtons extends StatefulWidget {
-  CounterButtons(
-      {this.buttonSize = 25,
-      this.buttonColour,
-      this.textDisplayWidth = 20,
-      this.initialValue = 0});
-
-  final double buttonSize;
-  final Color buttonColour;
-  final double textDisplayWidth;
-  final int initialValue;
-  int currentValue;
-
-  @override
-  State<StatefulWidget> createState() => new _CounterButtonsState(
-      buttonSize: buttonSize,
-      buttonColour: buttonColour,
-      textDisplayWidth: textDisplayWidth,
-      initialValue: initialValue);
-}
-
-class _CounterButtonsState extends State<CounterButtons> {
-  _CounterButtonsState(
-      {this.buttonSize = 25,
-      this.buttonColour,
-      this.textDisplayWidth = 20,
-      this.initialValue = 0});
-
-  final double buttonSize;
-  final Color buttonColour;
-  final double textDisplayWidth;
-  final int initialValue;
-  int currentValue;
-
-  @override
-  Widget build(BuildContext context) {
-    Color usedButtonColour =
-        buttonColour == null ? Theme.of(context).accentColor : buttonColour;
-
-    currentValue = initialValue;
-
-    return Row(
-      children: <Widget>[
-        SizedBox(
-          width: buttonSize,
-          height: buttonSize,
-          child: FloatingActionButton(
-            child: Icon(Icons.remove),
-            backgroundColor: usedButtonColour,
-            onPressed: () => {
-              setState(() {
-                currentValue = currentValue - 1;
-              })
-            },
-          ),
-        ),
-        Container(
-          child: Text(
-            currentValue.toString(),
-            textAlign: TextAlign.center,
-          ),
-          width: textDisplayWidth,
-        ),
-        SizedBox(
-          height: buttonSize,
-          width: buttonSize,
-          child: FloatingActionButton(
-            child: Icon(Icons.add),
-            backgroundColor: usedButtonColour,
-            onPressed: () => {
-              setState(() {
-                currentValue++;
-              })
-            },
-          ),
-        )
-      ],
     );
   }
 }
