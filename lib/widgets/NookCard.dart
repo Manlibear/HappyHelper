@@ -3,30 +3,25 @@ import 'package:flutter/material.dart';
 class NookCard extends StatelessWidget {
   NookCard(
       {Key key,
-      this.imageFolder,
-      this.imageKey,
       this.onTapFunc,
-      this.callbackParam,
-      this.extraPadding = 0})
+      this.builder,
+      this.contentPadding = 10,
+      this.backgroundColour = const Color(0xFFEDDFB8)})
       : super(key: key);
 
-  final String imageKey;
   final Function onTapFunc;
-  final dynamic callbackParam;
-  final String imageFolder;
-  final double extraPadding;
+  final double contentPadding;
+  final WidgetBuilder builder;
+  final Color backgroundColour;
 
   @override
   Widget build(BuildContext context) {
-    return _buildCard(context, imageFolder, imageKey, onTapFunc, callbackParam);
+    return _buildCard(context);
   }
 
-  Widget _buildCard(BuildContext ctx, String imageFolder, String imageKey,
-      Function onTapFunc, dynamic callbackParam) {
-    double padding = extraPadding + 10;
-
+  Widget _buildCard(BuildContext ctx) {
     return GestureDetector(
-      onTap: () => onTapFunc(callbackParam),
+      onTap: () => {if (onTapFunc != null) onTapFunc()},
       child: new Material(
         elevation: 1,
         shape: RoundedRectangleBorder(
@@ -40,7 +35,7 @@ class NookCard extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
                 ),
-                color: Color(0xFFEDDFB8),
+                color: backgroundColour,
                 child: ClipRRect(
                   borderRadius: new BorderRadius.circular(8.0),
                   child: Image(
@@ -51,10 +46,9 @@ class NookCard extends StatelessWidget {
                 )),
           ),
           Padding(
-            padding: EdgeInsets.all(padding),
-            child: Image(
-                image: AssetImage(
-                    "assets/images/" + imageFolder + "/" + imageKey + ".png")),
+            padding: EdgeInsets.all(contentPadding),
+            child: builder(ctx),
+            // child: Image(image: AssetImage("assets/images/" + image)),
           )
         ]),
       ),

@@ -11,6 +11,7 @@ import 'package:get_it/get_it.dart';
 
 import 'pages/crafting.dart';
 
+
 GetIt locator = GetIt.instance;
 
 void setupSingletons() async {
@@ -73,8 +74,9 @@ class HomeButtons extends StatelessWidget {
 
     return new Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      body: Center(
-          child: Container(
+      body: Stack(
+        children: <Widget>[
+          Container(
               margin: EdgeInsets.all(40.w),
               child: ListView(
                 children: <Widget>[
@@ -92,7 +94,9 @@ class HomeButtons extends StatelessWidget {
                   _buildHomeButton("Villagers", Color(0xff82E1C3), context),
                   _buildHomeButton("Critters", Color(0xffE9D179), context),
                 ],
-              ))),
+              )),
+        ],
+      ),
     );
   }
 }

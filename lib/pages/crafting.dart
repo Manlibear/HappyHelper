@@ -1,6 +1,8 @@
 import 'package:HappyHelper/service/basket_service.dart';
 import 'package:HappyHelper/service/item_service.dart';
 import 'package:HappyHelper/widgets/NookCard.dart';
+import 'package:after_layout/after_layout.dart';
+import 'package:flip_card/flip_card.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +29,8 @@ class _CraftingState extends State<Crafting> {
   FirebaseService _firebaseService = GetIt.I.get<FirebaseService>();
   ItemService _itemService = GetIt.I.get<ItemService>();
   BasketService _basketService = GetIt.I.get<BasketService>();
+
+  var cardKeys = Map<int, GlobalKey<FlipCardState>>();
 
   Map<String, Furniture> allFurniture;
   Map<String, Furniture> furniture = new Map<String, Furniture>();
@@ -85,7 +89,9 @@ class _CraftingState extends State<Crafting> {
         padding: const EdgeInsets.only(top: 4.0),
         child: Text(
           basketItemsCounts.toString(),
-          style: TextStyle(fontSize: ScreenUtil().setSp(40)),
+          style: TextStyle(
+              fontSize: ScreenUtil().setSp(40),
+              color: Theme.of(context).primaryColor),
         ),
       ),
       position: BadgePosition.topRight(top: 0, right: 0),
@@ -182,6 +188,11 @@ class _CraftingState extends State<Crafting> {
                         padding: const EdgeInsets.only(left: 10, right: 10),
                         child: GridView.builder(
                           itemBuilder: (BuildContext ctx, int i) {
+                            String key = furniture.values.toList()[i].key;
+                            cardKeys.putIfAbsent(
+                                i, () => GlobalKey<FlipCardState>());
+                            GlobalKey<FlipCardState> thisCard = cardKeys[i];
+
                             return AnimationConfiguration.staggeredGrid(
                                 position: i,
                                 duration: const Duration(milliseconds: 375),
@@ -189,13 +200,37 @@ class _CraftingState extends State<Crafting> {
                                 child: SlideAnimation(
                                     verticalOffset: 50.0,
                                     child: FadeInAnimation(
-                                      child: NookCard(
-                                          imageFolder: "items",
-                                          imageKey:
-                                              furniture.values.toList()[i].key,
-                                          onTapFunc: _showCraftingPopup,
-                                          callbackParam:
-                                              furniture.values.toList()[i]),
+                                      child: FlipCard(
+                                        key: thisCard,
+                                        back: Container(),
+                                        front: Hero(
+                                          tag: "FurniturePopup$key",
+                                          child: NookCard(
+                                            builder: (BuildContext context) {
+                                              return Image(
+                                                  image: AssetImage(
+                                                      "assets/images/items/" +
+                                                          furniture.values
+                                                              .toList()[i]
+                                                              .key +
+                                                          ".png"));
+                                            },
+                                            onTapFunc: () async {
+                                              await Navigator.of(context).push(
+                                                PageRouteBuilder(
+                                                  barrierColor: Colors.black45,
+                                                  opaque: false,
+                                                  pageBuilder: (_, __, ___) =>
+                                                      SingleFlipCard(furniture
+                                                          .values
+                                                          .toList()[i]),
+                                                ),
+                                              );
+                                              setBasketTotal();
+                                            },
+                                          ),
+                                        ),
+                                      ),
                                     )));
                           },
                           gridDelegate:
@@ -214,122 +249,175 @@ class _CraftingState extends State<Crafting> {
             )));
   }
 
-  Future<void> _showCraftingPopup(Furniture furni) async {
-    _initialCraftingCount = 1;
-    switch (await showDialog<String>(
-        context: context,
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-            builder: (context, setState) {
-              return SimpleDialog(
-                title: null,
-                contentPadding:
-                    EdgeInsets.only(top: 20, right: 20, left: 20, bottom: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                backgroundColor: Color(0xFFF8F6E2),
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Container(
-                          width: 125,
-                          height: 175,
-                          child: NookCard(
-                              imageFolder: "items",
-                              imageKey: furni.key,
-                              onTapFunc: () => {},
-                              callbackParam: null))
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15, bottom: 15),
-                    child: Text(
-                      furni.name ?? "[UNKNOWN]",
-                      style: Theme.of(context)
-                          .textTheme
-                          .display1
-                          .copyWith(fontSize: ScreenUtil().setSp(75)),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Column(
-                    children: <Widget>[
-                      for (int i = 0; i < 6; i++) _buildCraftingRow(furni, i)
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15.0, right: 10),
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                            width: 325.w,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 10),
-                              child: Counter(
-                                valueSpacing: 110.w,
-                                textTopPadding: 10.w,
-                                textStyle: TextStyle(
-                                  fontSize: ScreenUtil().setSp(70),
-                                ),
-                                buttonSize: 80.w,
-                                color: Theme.of(context).primaryColor,
-                                decimalPlaces: 0,
-                                initialValue: _initialCraftingCount,
-                                maxValue: 99,
-                                minValue: 1,
-                                onChanged: (num value) {
-                                  setState(() {
-                                    _initialCraftingCount = value;
-                                  });
-                                },
-                              ),
-                            )),
-                        Expanded(
-                          child: OutlineButton(
-                            child: Text(
-                              "Add to Basket",
-                              style:
-                                  TextStyle(fontSize: ScreenUtil().setSp(45)),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            color: Colors.lightGreen,
-                            borderSide: BorderSide(color: Colors.lightGreen),
-                            textColor: Colors.lightGreen,
-                            focusColor: Colors.lightGreen,
-                            highlightedBorderColor: Colors.lightGreen,
-                            onPressed: () {
-                              Navigator.pop(context, "Yes");
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        })) {
-      case "Yes":
-        _basketService.addToBasket(furni, _initialCraftingCount);
-        setState(() {
-          setBasketTotal();
-        });
-        print("Added to basket");
-        break;
-      case "No":
-        // ...
-        break;
-    }
-  }
-
   void setBasketTotal() {
     int total = 0;
     _basketService.basket.forEach((f, c) => total += c);
-    basketItemsCounts = total;
+    setState(() {
+      basketItemsCounts = total;
+    });
+  }
+}
+
+class SingleFlipCard extends StatefulWidget {
+  SingleFlipCard(this.furniture);
+
+  final Furniture furniture;
+
+  @override
+  SingleFlipCardState createState() => SingleFlipCardState();
+}
+
+class SingleFlipCardState extends State<SingleFlipCard>
+    with AfterLayoutMixin<SingleFlipCard> {
+  final GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    cardKey.currentState.toggleCard();
+  }
+
+  var _initialCraftingCount = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    String key = widget.furniture.key;
+
+    BasketService _basketService = GetIt.I.get<BasketService>();
+
+    return StatefulBuilder(
+      builder: (context, stateSetter) {
+        return WillPopScope(
+          onWillPop: () {
+            if (!cardKey.currentState.isFront) {
+              cardKey.currentState
+                  .toggleCard(callback: () => Navigator.pop(context));
+            } else {
+              Navigator.pop(context);
+            }
+          },
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: GestureDetector(
+              child: Center(
+                child: Hero(
+                  tag: "FurniturePopup$key",
+                  child: Container(
+                    color: Colors.transparent,
+                    height: 1500.h,
+                    width: 1000.w,
+                    child: FlipCard(
+                      key: cardKey,
+                      flipOnTouch: false,
+                      direction: FlipDirection.HORIZONTAL,
+                      front: NookCard(
+                        onTapFunc: () => {Navigator.pop(context)},
+                        builder: (BuildContext context) {
+                          return Image(
+                              image:
+                                  AssetImage("assets/images/items/$key.png"));
+                        },
+                      ),
+                      back: NookCard(
+                        onTapFunc: () {
+                          cardKey.currentState.toggleCard(
+                              callback: () => Navigator.pop(context));
+                        },
+                        builder: (BuildContext context) {
+                          return Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Column(
+                              children: <Widget>[
+                                Container(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 15, bottom: 15),
+                                    child: Text(
+                                      widget.furniture.name ?? "[UNKNOWN]",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .display1
+                                          .copyWith(
+                                              fontSize:
+                                                  ScreenUtil().setSp(120)),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      for (int i = 0; i < 6; i++)
+                                        _buildCraftingRow(widget.furniture, i)
+                                    ],
+                                  ),
+                                ),
+                                Counter(
+                                  valueSpacing: 110.w,
+                                  textTopPadding: 10.w,
+                                  textStyle: TextStyle(
+                                      fontSize: ScreenUtil().setSp(70),
+                                      color: Theme.of(context).primaryColor),
+                                  buttonSize: 100.w,
+                                  color: Theme.of(context).primaryColor,
+                                  decimalPlaces: 0,
+                                  initialValue: _initialCraftingCount,
+                                  maxValue: 99,
+                                  minValue: 1,
+                                  onChanged: (num value) {
+                                    setState(() {
+                                      _initialCraftingCount = value;
+                                    });
+                                  },
+                                ),
+                                OutlineButton(
+                                  child: Text(
+                                    "Add to Basket",
+                                    style: TextStyle(
+                                        fontSize: ScreenUtil().setSp(70)),
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  color: Colors.lightGreen,
+                                  borderSide:
+                                      BorderSide(color: Colors.lightGreen),
+                                  textColor: Colors.lightGreen,
+                                  focusColor: Colors.lightGreen,
+                                  highlightedBorderColor: Colors.lightGreen,
+                                  onPressed: () {
+                                    _basketService.addToBasket(widget.furniture,
+                                        _initialCraftingCount);
+                                    if (!cardKey.currentState.isFront) {
+                                      cardKey.currentState.toggleCard(
+                                          callback: () =>
+                                              Navigator.pop(context));
+                                    } else {
+                                      Navigator.pop(context);
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              onTap: () {
+                cardKey.currentState.toggleCard();
+                Navigator.pop(context);
+              },
+              onHorizontalDragEnd: (DragEndDetails details) {
+                cardKey.currentState.toggleCard();
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   bool evenCraftingRow = false;
@@ -367,7 +455,7 @@ class _CraftingState extends State<Crafting> {
       drawChildren = false;
     }
 
-    Color rowColor = evenCraftingRow ? Color(0x30E1D8B7) : Color(0x60E2D5AB);
+    Color rowColor = evenCraftingRow ? Color(0xFFE1D8B7) : Color(0xFFE2D5AB);
     evenCraftingRow = !evenCraftingRow;
 
     return Material(
@@ -395,7 +483,9 @@ class _CraftingState extends State<Crafting> {
             Expanded(
                 child: Text(
               itemName,
-              style: TextStyle(fontSize: ScreenUtil().setSp(50)),
+              style: TextStyle(
+                  fontSize: ScreenUtil().setSp(60),
+                  color: Theme.of(context).primaryColor),
             )),
             Container(
               height: 36,
@@ -404,7 +494,9 @@ class _CraftingState extends State<Crafting> {
               padding: const EdgeInsets.only(right: 15),
               child: Text(
                 itemCount,
-                style: TextStyle(fontSize: ScreenUtil().setSp(50)),
+                style: TextStyle(
+                    fontSize: ScreenUtil().setSp(60),
+                    color: Theme.of(context).primaryColor),
                 textAlign: TextAlign.right,
               ),
             )
