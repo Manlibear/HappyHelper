@@ -193,7 +193,7 @@ class VillagersState extends State<Villagers> {
                                         },
                                         contentPadding: 15,
                                         onTapFunc: () async {
-                                          Navigator.of(context).push(
+                                          await Navigator.of(context).push(
                                             PageRouteBuilder(
                                               barrierColor: Colors.black45,
                                               opaque: false,
@@ -382,7 +382,7 @@ class SingleFlipCardState extends State<SingleFlipCard>
               tag: "VillagerPopup$key",
               child: Container(
                 color: Colors.transparent,
-                height: 1700.h,
+                height: 1900.h,
                 width: 1000.w,
                 child: FlipCard(
                   key: cardKey,
@@ -417,33 +417,43 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                   fontSize: 120.w,
                                   decoration: TextDecoration.underline),
                             ),
-                            Expanded(
-                                child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                _leftRightRow("Gender", widget.villager.gender),
-                                _leftRightRow(
-                                    "Birthday", widget.villager.birthday),
-                                _leftRightRow(
-                                    "Personality", widget.villager.personality),
-                                _leftRightRow(
-                                    "Species", widget.villager.species),
-                                _leftRightRow("Phrase",
-                                    "\"" + widget.villager.phrase + "\""),
+                            Flex(
+                              direction: Axis.horizontal,
+                              children: [
+                                Expanded(
+                                    child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    _leftRightRow(
+                                        "Gender", widget.villager.gender),
+                                    _leftRightRow(
+                                        "Birthday", widget.villager.birthday),
+                                    _leftRightRow("Personality",
+                                        widget.villager.personality),
+                                    _leftRightRow(
+                                        "Species", widget.villager.species),
+                                    _leftRightRow("Phrase",
+                                        "\"" + widget.villager.phrase + "\""),
+                                  ],
+                                )),
                               ],
-                            )),
+                            ),
                             Expanded(
-                              child: Material(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(25)),
-                                color: Color(0x20000000),
-                                child: SingleChildScrollView(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(20),
-                                    child: Text(
-                                      widget.villager.description,
-                                      style: TextStyle(fontSize: 50.w),
-                                      textAlign: TextAlign.justify,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top:20),
+                                child: Material(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(25)),
+                                  color: Color(0x20000000),
+                                  child: SingleChildScrollView(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(20),
+                                      child: Text(
+                                        widget.villager.description,
+                                        style: TextStyle(fontSize: 50.w),
+                                        textAlign: TextAlign.justify,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -463,10 +473,6 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                   countryCode: 'KR',
                                   label: widget.villager.nameKR,
                                 ),
-                                NookChip(
-                                  countryCode: 'CN',
-                                  label: widget.villager.nameCN,
-                                ),
                               ],
                             ),
                             Padding(
@@ -482,10 +488,6 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                   NookChip(
                                     countryCode: 'IT',
                                     label: widget.villager.nameIT,
-                                  ),
-                                  NookChip(
-                                    countryCode: 'ES',
-                                    label: widget.villager.nameES,
                                   ),
                                 ],
                               ),
@@ -504,6 +506,33 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                     countryCode: 'NL',
                                     label: widget.villager.nameNL,
                                   ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 5.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  NookChip(
+                                    countryCode: 'ES',
+                                    label: widget.villager.nameES,
+                                  ),
+                                  NookChip(
+                                    countryCode: 'CN',
+                                    label: widget.villager.nameCN,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 5.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  
                                   NookChip(
                                     countryCode: 'RU',
                                     label: widget.villager.nameRU,
@@ -553,15 +582,15 @@ class NookChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 275.w,
+      width: 380.w,
       child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Flags.getFullFlag(countryCode, 40.w, null),
+            Flags.getMiniFlag(countryCode, 42.w, null),
             Text(
               label,
-              style: TextStyle(fontSize: 40.w),
+              style: TextStyle(fontSize: 42.w),
             )
           ]),
     );

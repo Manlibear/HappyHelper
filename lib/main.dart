@@ -3,16 +3,18 @@ import 'package:HappyHelper/pages/villagers.dart';
 import 'package:HappyHelper/service/basket_service.dart';
 import 'package:HappyHelper/service/item_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:HappyHelper/service/firebase_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
-
+import 'package:device_preview/device_preview.dart';
 import 'pages/crafting.dart';
-
+import 'pages/critters.dart';
 
 GetIt locator = GetIt.instance;
+bool usePreview = false;
 
 void setupSingletons() async {
   locator.registerLazySingleton<FirebaseService>(() => FirebaseService());
@@ -30,13 +32,18 @@ void main() {
     statusBarColor: Colors.transparent, // status bar color
   ));
 
-  runApp(MyApp());
+  runApp(DevicePreview(
+    enabled: !kReleaseMode && usePreview,
+    builder: (context) => HappyHelper(),
+  ));
 }
 
-class MyApp extends StatelessWidget {
+class HappyHelper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        locale: DevicePreview.of(context)?.locale,
+        builder: DevicePreview.appBuilder,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
             primaryColor: Color(0xFF534D41),
@@ -61,7 +68,7 @@ class MyApp extends StatelessWidget {
         routes: <String, WidgetBuilder>{
           '/crafting': (BuildContext context) => Crafting(),
           '/villagers': (BuildContext context) => Villagers(),
-          '/critters': (BuildContext context) => Crafting(),
+          '/critters': (BuildContext context) => Critters(),
           '/basket': (BuildContext context) => Basket()
         });
   }

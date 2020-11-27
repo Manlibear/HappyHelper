@@ -40,7 +40,7 @@ class NookCard extends StatelessWidget {
                   borderRadius: new BorderRadius.circular(8.0),
                   child: Image(
                     image: AssetImage("assets/images/acorns.png"),
-                    repeat: ImageRepeat.repeatY,
+                    repeat: ImageRepeat.repeat,
                     color: Color.fromARGB(10, 0, 0, 0),
                   ),
                 )),

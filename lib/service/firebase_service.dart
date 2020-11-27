@@ -2,6 +2,7 @@ import 'package:HappyHelper/model/villager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:HappyHelper/model/furniture.dart';
+import 'package:HappyHelper/model/critter.dart';
 
 class FirebaseService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -44,5 +45,21 @@ class FirebaseService {
     });
 
     return villagerObjects;
+  }
+
+  Future<Map<String, Critter>> getAllCritters() async {
+    DataSnapshot snapshot = await _database
+        .reference()
+        .child("critters")
+        .orderByChild("name")
+        .once();
+
+    Map<String, Critter> critterObjects = new Map<String, Critter>();
+    Map<String, dynamic> json = new Map<String, dynamic>.from(snapshot.value);
+
+    json.forEach((key, value) {
+      critterObjects.putIfAbsent(key, () => Critter.fromDb(value));
+    });
+    return critterObjects;
   }
 }

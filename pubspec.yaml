@@ -51,6 +51,10 @@ dependencies:
   after_layout: ^1.0.7+2
 #---------------- flags -------------
   flag: ^1.0.3
+#----------- device preview ---------
+  device_preview: ^0.4.4
+#--------------- rulers -------------
+  rulers: ^1.0.0
 
 dev_dependencies:
   flutter_test:

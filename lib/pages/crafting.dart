@@ -36,7 +36,6 @@ class _CraftingState extends State<Crafting> {
   Map<String, Furniture> furniture = new Map<String, Furniture>();
   bool isLoading = true;
   bool noItems = false;
-  int _initialCraftingCount = 1;
 
   @override
   initState() {
@@ -209,11 +208,7 @@ class _CraftingState extends State<Crafting> {
                                             builder: (BuildContext context) {
                                               return Image(
                                                   image: AssetImage(
-                                                      "assets/images/items/" +
-                                                          furniture.values
-                                                              .toList()[i]
-                                                              .key +
-                                                          ".png"));
+                                                      "assets/images/items/$key.png"));
                                             },
                                             onTapFunc: () async {
                                               await Navigator.of(context).push(
@@ -303,7 +298,7 @@ class SingleFlipCardState extends State<SingleFlipCard>
                   tag: "FurniturePopup$key",
                   child: Container(
                     color: Colors.transparent,
-                    height: 1500.h,
+                    height: 1800.h,
                     width: 1000.w,
                     child: FlipCard(
                       key: cardKey,
@@ -335,10 +330,10 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                       widget.furniture.name ?? "[UNKNOWN]",
                                       style: Theme.of(context)
                                           .textTheme
-                                          .display1
+                                          .headline1
                                           .copyWith(
                                               fontSize:
-                                                  ScreenUtil().setSp(120)),
+                                                  ScreenUtil().setSp(100)),
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
@@ -455,7 +450,7 @@ class SingleFlipCardState extends State<SingleFlipCard>
       drawChildren = false;
     }
 
-    Color rowColor = evenCraftingRow ? Color(0xFFE1D8B7) : Color(0xFFE2D5AB);
+    Color rowColor = evenCraftingRow ? Color(0xFFE0D4AC) : Color(0xFFD9D0A8);
     evenCraftingRow = !evenCraftingRow;
 
     return Material(

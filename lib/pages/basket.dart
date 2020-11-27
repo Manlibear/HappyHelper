@@ -100,9 +100,9 @@ class _BasketState extends State<Basket> {
                                     ),
                                   ),
                                   Expanded(
-                                    child: Text(r.name),
+                                    child: Text(r.name, style: Theme.of(context).textTheme.bodyText1),
                                   ),
-                                  Text(r.count.toString())
+                                  Text(r.count.toString(), style: Theme.of(context).textTheme.bodyText1)
                                 ],
                               )
                           ]))),
@@ -144,9 +144,9 @@ class _BasketState extends State<Basket> {
                                     ),
                                   ),
                                   Expanded(
-                                    child: Text(r.name),
+                                    child: Text(r.name, style: Theme.of(context).textTheme.bodyText1,),
                                   ),
-                                  Text(r.getCountText())
+                                  Text(r.getCountText(), style: Theme.of(context).textTheme.bodyText1)
                                 ],
                               )
                           ])))
