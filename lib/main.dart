@@ -10,6 +10,7 @@ import 'package:HappyHelper/service/firebase_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:device_preview/device_preview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/crafting.dart';
 import 'pages/critters.dart';
 
@@ -20,6 +21,7 @@ void setupSingletons() async {
   locator.registerLazySingleton<FirebaseService>(() => FirebaseService());
   locator.registerLazySingleton<BasketService>(() => BasketService());
   locator.registerLazySingleton<ItemService>(() => ItemService());
+  locator.registerLazySingletonAsync<SharedPreferences>(() async => await SharedPreferences.getInstance());
 }
 
 void main() {

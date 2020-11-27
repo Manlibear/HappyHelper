@@ -8,6 +8,7 @@ import 'package:HappyHelper/widgets/NookCard.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Critters extends StatefulWidget {
   @override
@@ -214,6 +215,7 @@ class SingleFlipCard extends StatefulWidget {
   SingleFlipCard(this.critter);
 
   final Critter critter;
+  
 
   @override
   SingleFlipCardState createState() => SingleFlipCardState();
@@ -231,6 +233,9 @@ class SingleFlipCardState extends State<SingleFlipCard>
   @override
   Widget build(BuildContext context) {
     String key = widget.critter.key;
+
+  final SharedPreferences prefs =  GetIt.I.get<SharedPreferences>();
+
     return WillPopScope(
         onWillPop: () {
           if (!cardKey.currentState.isFront) {
@@ -325,6 +330,34 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                       )
                                   ]),
                             ),
+                            SizedBox(child: 
+                            Container(
+                              margin: EdgeInsets.only(bottom: 50.h),
+                              height: 175.h,
+                              child: Material(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                ),
+                                elevation: 2,
+                                color: widget.critter.hasBeenCaught ? Colors.red : Colors.green,
+                                child: Center(
+                                  child: InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          var newVal = !widget.critter.hasBeenCaught;
+                                          prefs.setBool("Caught$key", newVal);
+                                          widget.critter.hasBeenCaught = newVal;
+                                        });
+                                      },
+                                      child: Text(
+                                          widget.critter.hasBeenCaught ? "Mark as not Caught" : "Mark as Caught",
+                                          style: TextStyle(
+                                              fontSize: ScreenUtil().setSp(120), color: Colors.white),
+                                        ),
+                                      ),
+                                ),
+                              ))
+                            ,),
                             Padding(
                               padding: const EdgeInsets.only(bottom: 15),
                               child: Text(

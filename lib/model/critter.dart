@@ -1,9 +1,12 @@
 import 'dart:collection';
+import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Critter {
   String key;
   String name;
   String area;
+  bool hasBeenCaught;
   List<CritterSpawnMonth> months;
   bool isFish;
 
@@ -12,6 +15,7 @@ class Critter {
     name = data['name'];
     area = data['area'];
     isFish = data['key'].toString().startsWith("Fish");
+    hasBeenCaught = GetIt.I.get<SharedPreferences>().getBool("Caught$key") ?? false;
 
     months = new List<CritterSpawnMonth>();
 
