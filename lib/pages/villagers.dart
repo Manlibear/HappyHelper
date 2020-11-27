@@ -185,11 +185,7 @@ class VillagersState extends State<Villagers> {
                                         builder: (BuildContext context) {
                                           return Image(
                                               image: AssetImage(
-                                                  "assets/images/villagers/" +
-                                                      villagers.values
-                                                          .toList()[i]
-                                                          .key +
-                                                      ".png"));
+                                                  "assets/images/villagers/$key.png"));
                                         },
                                         contentPadding: 15,
                                         onTapFunc: () async {
