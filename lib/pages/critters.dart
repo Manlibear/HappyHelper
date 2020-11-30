@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:happy_helper/service/firebase_service.dart';
 import 'package:happy_helper/service/helper_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:happy_helper/model/critter.dart';
@@ -18,7 +17,6 @@ class Critters extends StatefulWidget {
 }
 
 class _CrittersState extends State<Critters> {
-  FirebaseService _firebaseService = GetIt.I.get<FirebaseService>();
   Nookipedia _nookipediaService = GetIt.I.get<Nookipedia>();
   Map<String, Critter> allCritters = new Map<String, Critter>();
   Map<String, Critter> critters = new Map<String, Critter>();
@@ -577,80 +575,6 @@ class SingleFlipCardState extends State<SingleFlipCard>
     CritterSpawnMonth month = c.months[DateTime.now().month - 1];
 
     return month.times[i - 1];
-
-    if (c.isFish) {
-      switch (i) {
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-          return month.morning > 0;
-
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-          return month.midday > 0;
-
-        case 17:
-        case 18:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
-        case 23:
-        case 24:
-          return month.night > 0;
-      }
-    } else {
-      switch (i) {
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-          return month.earlyMorn > 0;
-
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-          return month.midMorn > 0;
-
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-          return month.lateMorn > 0;
-
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-          return month.earlyAfter > 0;
-
-        case 17:
-        case 18:
-        case 19:
-        case 20:
-          return month.lateAfter > 0;
-
-        case 21:
-        case 22:
-        case 23:
-        case 24:
-          return month.eve > 0;
-      }
-    }
-
-    return false;
   }
 
   String getRuleTimeAsString(int i) {

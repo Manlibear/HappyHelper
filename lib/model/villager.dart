@@ -10,6 +10,7 @@ class Villager {
   String description;
   String phrase;
   String birthday;
+  String imageUrl;
   String nameJP;
   String nameKR;
   String nameCN;
@@ -19,8 +20,8 @@ class Villager {
   String nameDE;
   String nameNL;
   String nameRU;
-  List<String> favouriteStyles;
-  List<String> favouriteColours;
+  List<dynamic> favouriteStyles;
+  List<dynamic> favouriteColours;
   String hobby;
 
   Villager(this.key, this.name, this.gender, this.species, this.personality,
@@ -50,13 +51,31 @@ class Villager {
   Villager.fromJson(dynamic json) {
     key = json["id"];
     name = json["name"];
+    imageUrl = json["image_url"];
     gender = json["gender"];
     species = json["species"];
     personality = json["personality"];
-    phrase = json["catchphrase"];
-    favouriteColours = json["fav_colors"] as List<String>;
-    favouriteStyles = json["fav_styles"] as List<String>;
-    hobby = json["hobby"];
+    phrase = json["phrase"];
+
+    var day = json["birthday_day"];
+    var dayOrdinal = "th";
+
+    switch (day.substring(day.length - 1)) {
+      case "1":
+        dayOrdinal = "st";
+        break;
+      case "2":
+        dayOrdinal = "nd";
+        break;
+      case "3":
+        dayOrdinal = "rd";
+        break;
+    }
+
+    birthday = json["birthday_day"] + dayOrdinal + " " + json["birthday_month"];
+    favouriteColours = json["nh_details"]["fav_colors"] as List<dynamic>;
+    favouriteStyles = json["nh_details"]["fav_styles"] as List<dynamic>;
+    hobby = json["nh_details"]["hobby"];
   }
 
   static Map<String, Color> villagerColors = {

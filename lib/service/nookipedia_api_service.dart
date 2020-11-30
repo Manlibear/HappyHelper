@@ -30,7 +30,7 @@ class Nookipedia {
         url += "nh/sea";
         break;
       case NookipediaEndpoints.Villagers:
-        url += "Villagers";
+        url += "villagers?game=nh&nhdetails=true";
         break;
       case NookipediaEndpoints.Recipes:
         url += "nh/recipes";

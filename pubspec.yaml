@@ -81,9 +81,7 @@ flutter:
    - assets/images/villagers.png
    - assets/images/ac-logo.png
    - assets/images/acorns.png
-   - assets/images/critters/
    - assets/images/items/
-   - assets/images/villagers/
    
 
   # An image asset can refer to one or more resolution-specific "variants", see
