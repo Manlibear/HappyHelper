@@ -1,5 +1,5 @@
-import 'package:HappyHelper/model/furniture.dart';
-import 'package:HappyHelper/service/firebase_service.dart';
+import 'package:happy_helper/model/furniture.dart';
+import 'package:happy_helper/service/firebase_service.dart';
 import 'package:get_it/get_it.dart';
 
 class ItemService {

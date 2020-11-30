@@ -1,10 +1,12 @@
-import 'package:HappyHelper/service/firebase_service.dart';
-import 'package:HappyHelper/service/helper_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:happy_helper/service/firebase_service.dart';
+import 'package:happy_helper/service/helper_service.dart';
 import 'package:get_it/get_it.dart';
-import 'package:HappyHelper/model/critter.dart';
+import 'package:happy_helper/model/critter.dart';
 import 'package:flutter/material.dart';
 import 'package:after_layout/after_layout.dart';
-import 'package:HappyHelper/widgets/NookCard.dart';
+import 'package:happy_helper/service/nookipedia_api_service.dart';
+import 'package:happy_helper/widgets/NookCard.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,7 +19,8 @@ class Critters extends StatefulWidget {
 
 class _CrittersState extends State<Critters> {
   FirebaseService _firebaseService = GetIt.I.get<FirebaseService>();
-  Map<String, Critter> allCritters;
+  Nookipedia _nookipediaService = GetIt.I.get<Nookipedia>();
+  Map<String, Critter> allCritters = new Map<String, Critter>();
   Map<String, Critter> critters = new Map<String, Critter>();
 
   TextEditingController editingController = TextEditingController();
@@ -28,15 +31,39 @@ class _CrittersState extends State<Critters> {
 
   @override
   void initState() {
-    _firebaseService.getAllCritters().then((value) {
-      allCritters = value;
+    _nookipediaService
+        .fetchList<Critter>(NookipediaEndpoints.Fish)
+        .then((fish) => ({
+              for (var f in fish) {allCritters[f.key] = f},
+              _nookipediaService
+                  .fetchList<Critter>(NookipediaEndpoints.Bugs)
+                  .then((bugs) => ({
+                        for (var b in bugs) {allCritters[b.key] = b},
+                        _nookipediaService
+                            .fetchList<Critter>(
+                                NookipediaEndpoints.SeaCreatures)
+                            .then((seaCreatures) => ({
+                                  for (var sc in seaCreatures)
+                                    {allCritters[sc.key] = sc},
+                                  allCritters.forEach((key, value) {
+                                    critters[key] = value;
+                                  }),
+                                  setState(() {
+                                    isLoading = false;
+                                  })
+                                }))
+                      }))
+            }));
 
-      allCritters.forEach((key, value) {
-        critters[key] = value;
-      });
-
+    editingController.addListener(() {
       setState(() {
-        isLoading = false;
+        critters.clear();
+        String query = editingController.text.toLowerCase();
+
+        allCritters.forEach((k, v) => {
+              if ((v.name ?? "").toLowerCase().contains(query))
+                {critters[k] = v}
+            });
       });
     });
 
@@ -143,7 +170,7 @@ class _CrittersState extends State<Critters> {
                     child: Center(
                         child: Text(
                   "No Items Found",
-                  style: Theme.of(context).textTheme.subtitle,
+                  style: Theme.of(context).textTheme.subtitle1,
                 ))),
               Expanded(
                   child: AnimationLimiter(
@@ -174,9 +201,40 @@ class _CrittersState extends State<Critters> {
                                                 ? Color(0xFFC9FDF9)
                                                 : Color(0xFFCAFEC9),
                                         builder: (BuildContext context) {
-                                          return Image(
-                                              image: AssetImage(
-                                                  "assets/images/critters/$key.png"));
+                                          return Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              CachedNetworkImage(
+                                                imageUrl: critters.values
+                                                    .toList()[i]
+                                                    .imageUrl,
+                                                placeholder: (context, url) =>
+                                                    CircularProgressIndicator(),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        Icon(Icons.error),
+                                              ),
+                                              if (critters.values
+                                                  .toList()[i]
+                                                  .hasBeenCaught)
+                                                Align(
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    50.w)),
+                                                        color: Colors.green),
+                                                    child: Icon(
+                                                      Icons.check_circle,
+                                                      size: 100.w,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  alignment: Alignment.topRight,
+                                                ),
+                                            ],
+                                          );
                                         },
                                         contentPadding: 15,
                                         onTapFunc: () async {
@@ -215,7 +273,6 @@ class SingleFlipCard extends StatefulWidget {
   SingleFlipCard(this.critter);
 
   final Critter critter;
-  
 
   @override
   SingleFlipCardState createState() => SingleFlipCardState();
@@ -234,16 +291,16 @@ class SingleFlipCardState extends State<SingleFlipCard>
   Widget build(BuildContext context) {
     String key = widget.critter.key;
 
-  final SharedPreferences prefs =  GetIt.I.get<SharedPreferences>();
+    final SharedPreferences prefs = GetIt.I.get<SharedPreferences>();
 
     return WillPopScope(
         onWillPop: () {
           if (!cardKey.currentState.isFront) {
-            cardKey.currentState
-                .toggleCard(callback: () => Navigator.pop(context));
+            cardKey.currentState.toggleCard(() => Navigator.pop(context));
           } else {
             Navigator.pop(context);
           }
+          return Future.value(false);
         },
         child: Scaffold(
             backgroundColor: Colors.transparent,
@@ -253,7 +310,7 @@ class SingleFlipCardState extends State<SingleFlipCard>
                 tag: "CritterPopup$key",
                 child: Container(
                   width: 1000.w,
-                  height: 1200.w,
+                  height: 1250.w,
                   child: FlipCard(
                     key: cardKey,
                     front: NookCard(
@@ -262,10 +319,30 @@ class SingleFlipCardState extends State<SingleFlipCard>
                           : Color(0xFFCAFEC9),
                       onTapFunc: () => {Navigator.pop(context)},
                       builder: (BuildContext context) {
-                        return Expanded(
-                          child: Image(
-                              image: AssetImage(
-                                  "assets/images/critters/$key.png")),
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.network(widget.critter.imageUrl),
+                            if (widget.critter.hasBeenCaught)
+                              Align(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 20.0, right: 20),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(50.w)),
+                                        color: Colors.green),
+                                    child: Icon(
+                                      Icons.check_circle,
+                                      size: 100.w,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                alignment: Alignment.topRight,
+                              ),
+                          ],
                         );
                       },
                     ),
@@ -282,9 +359,10 @@ class SingleFlipCardState extends State<SingleFlipCard>
                               style: Theme.of(context)
                                   .textTheme
                                   .headline1
-                                  .copyWith(fontSize: ScreenUtil().setSp(100)),
+                                  .copyWith(fontSize: ScreenUtil().setSp(125)),
                             ),
-                            if (widget.critter.isFish)
+                            if (widget.critter.isFish &&
+                                !widget.critter.isSeaCreature)
                               Padding(
                                 padding: const EdgeInsets.only(top: 25),
                                 child: _leftRightRow(
@@ -298,15 +376,23 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                     for (var m in widget.critter.months)
                                       FilterChip(
                                         onSelected: (bool value) => {},
-                                        label: Text(
-                                          HelperService.monthNameFromNumber(
-                                              m.month),
-                                          style: TextStyle(
-                                              fontSize: ScreenUtil().setSp(60),
-                                              color: m.spawns()
-                                                  ? Colors.white
-                                                  : Theme.of(context)
-                                                      .primaryColor),
+                                        label: Container(
+                                          width: 130.w,
+                                          height: 80.h,
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              HelperService.monthNameFromNumber(
+                                                  m.month),
+                                              style: TextStyle(
+                                                  fontSize:
+                                                      ScreenUtil().setSp(60),
+                                                  color: m.spawns()
+                                                      ? Colors.white
+                                                      : Theme.of(context)
+                                                          .primaryColor),
+                                            ),
+                                          ),
                                         ),
                                         padding: EdgeInsets.all(0),
                                         showCheckmark: false,
@@ -330,34 +416,6 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                       )
                                   ]),
                             ),
-                            SizedBox(child: 
-                            Container(
-                              margin: EdgeInsets.only(bottom: 50.h),
-                              height: 175.h,
-                              child: Material(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                ),
-                                elevation: 2,
-                                color: widget.critter.hasBeenCaught ? Colors.red : Colors.green,
-                                child: Center(
-                                  child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          var newVal = !widget.critter.hasBeenCaught;
-                                          prefs.setBool("Caught$key", newVal);
-                                          widget.critter.hasBeenCaught = newVal;
-                                        });
-                                      },
-                                      child: Text(
-                                          widget.critter.hasBeenCaught ? "Mark as not Caught" : "Mark as Caught",
-                                          style: TextStyle(
-                                              fontSize: ScreenUtil().setSp(120), color: Colors.white),
-                                        ),
-                                      ),
-                                ),
-                              ))
-                            ,),
                             Padding(
                               padding: const EdgeInsets.only(bottom: 15),
                               child: Text(
@@ -382,62 +440,100 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                                     ScreenUtil().setSp(35))),
                                   ],
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    for (int i = 1; i <= 24; i++)
-                                      Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 20.0),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              Stack(
-                                                alignment:
-                                                    Alignment.bottomCenter,
-                                                children: [
-                                                  Container(
-                                                    margin: EdgeInsets.only(
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 20.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      for (int i = 1; i <= 24; i++)
+                                        Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 20.0),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Stack(
+                                                  alignment:
+                                                      Alignment.bottomCenter,
+                                                  children: [
+                                                    Container(
+                                                        decoration:
+                                                            getRuleSegmentDecoration(
+                                                                i,
+                                                                widget.critter),
+                                                        width: 13.75,
+                                                        height: 10),
+                                                    Container(
+                                                      margin: EdgeInsets.only(
                                                         top: 5,
-                                                        right: 5,
-                                                        left: 5),
-                                                    color:
-                                                        DateTime.now().hour == i
-                                                            ? Colors.red
-                                                            : Colors.grey,
-                                                    width: 2,
-                                                    height: DateTime.now()
-                                                                .hour ==
-                                                            i
-                                                        ? 20
-                                                        : getTimeRuleLineHeight(
-                                                            i),
-                                                  ),
-                                                  Container(
-                                                      decoration:
-                                                          getRuleSegmentDecoration(
-                                                              i,
-                                                              widget.critter),
-                                                      width: 12.6,
-                                                      height: 10)
-                                                ],
-                                              )
-                                            ],
-                                          ))
-                                  ],
+                                                      ),
+                                                      color:
+                                                          DateTime.now().hour ==
+                                                                  i
+                                                              ? Colors.red
+                                                              : Colors.grey,
+                                                      width: 2,
+                                                      height: DateTime.now()
+                                                                  .hour ==
+                                                              i
+                                                          ? 20
+                                                          : getTimeRuleLineHeight(
+                                                              i),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ))
+                                    ],
+                                  ),
                                 ),
                               ],
-                            )
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10.0),
+                              child: Container(
+                                  height: 125.h,
+                                  child: Material(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25.0),
+                                    ),
+                                    elevation: 2,
+                                    color: widget.critter.hasBeenCaught
+                                        ? Colors.red[300]
+                                        : Colors.green[300],
+                                    child: Center(
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            var newVal =
+                                                !widget.critter.hasBeenCaught;
+                                            prefs.setBool("Caught$key", newVal);
+                                            widget.critter.hasBeenCaught =
+                                                newVal;
+                                          });
+                                        },
+                                        child: Text(
+                                          widget.critter.hasBeenCaught
+                                              ? "Mark as not Caught"
+                                              : "Mark as Caught",
+                                          style: TextStyle(
+                                              fontSize: ScreenUtil().setSp(80),
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  )),
+                            ),
                           ],
                         );
                       },
-                      contentPadding: 15,
+                      contentPadding: 25,
                       onTapFunc: () {
                         cardKey.currentState
-                            .toggleCard(callback: () => Navigator.pop(context));
+                            .toggleCard(() => Navigator.pop(context));
                       },
                     ),
                   ),
@@ -479,6 +575,9 @@ class SingleFlipCardState extends State<SingleFlipCard>
 
   bool showSpawnOnRule(int i, Critter c) {
     CritterSpawnMonth month = c.months[DateTime.now().month - 1];
+
+    return month.times[i - 1];
+
     if (c.isFish) {
       switch (i) {
         case 1:
@@ -583,7 +682,7 @@ class SingleFlipCardState extends State<SingleFlipCard>
           style:
               TextStyle(fontSize: 70.w, color: Theme.of(context).primaryColor),
         ),
-        Text(right,
+        Text(right ?? "",
             style: TextStyle(
                 fontSize: 70.w, color: Theme.of(context).primaryColor))
       ],

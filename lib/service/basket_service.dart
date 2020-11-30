@@ -1,5 +1,5 @@
-import 'package:HappyHelper/model/furniture.dart';
-import 'package:HappyHelper/service/item_service.dart';
+import 'package:happy_helper/model/furniture.dart';
+import 'package:happy_helper/service/item_service.dart';
 import 'package:get_it/get_it.dart';
 
 class BasketService {
@@ -81,7 +81,6 @@ class BasketService {
         } else {
           if (basketItems.where((x) => x.key == r.key).first.complete) continue;
 
-          //TODO: Confirm if there are three-tier recipes
           for (var subR in subItems) {
             addBasketLineItem(subR, basket[f] * r.count, basketMaterials);
           }

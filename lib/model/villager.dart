@@ -19,6 +19,9 @@ class Villager {
   String nameDE;
   String nameNL;
   String nameRU;
+  List<String> favouriteStyles;
+  List<String> favouriteColours;
+  String hobby;
 
   Villager(this.key, this.name, this.gender, this.species, this.personality,
       this.description);
@@ -32,7 +35,7 @@ class Villager {
     description = data['description'];
     phrase = data['phrase'];
     birthday = data['birthday'];
-    
+
     nameJP = data['nameJP'];
     nameKR = data['nameKR'];
     nameCN = data['nameCN'];
@@ -42,6 +45,18 @@ class Villager {
     nameDE = data['nameDE'];
     nameNL = data['nameNL'];
     nameRU = data['nameRU'];
+  }
+
+  Villager.fromJson(dynamic json) {
+    key = json["id"];
+    name = json["name"];
+    gender = json["gender"];
+    species = json["species"];
+    personality = json["personality"];
+    phrase = json["catchphrase"];
+    favouriteColours = json["fav_colors"] as List<String>;
+    favouriteStyles = json["fav_styles"] as List<String>;
+    hobby = json["hobby"];
   }
 
   static Map<String, Color> villagerColors = {

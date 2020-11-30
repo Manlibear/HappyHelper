@@ -1,4 +1,4 @@
-import 'package:HappyHelper/service/basket_service.dart';
+import 'package:happy_helper/service/basket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-class CraftingMaterial   {
+class CraftingMaterial {
   String name;
   String background;
   String key;
@@ -9,7 +9,7 @@ class CraftingMaterial   {
 
   CraftingMaterial.fromJson(Map<String, dynamic> json)
       : name = json['name'],
-        key = json['key'];
+        key = json['serial_id'];
 
   CraftingMaterial.fromDb(LinkedHashMap<dynamic, dynamic> data) {
     name = data['name'];

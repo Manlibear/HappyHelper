@@ -1,6 +1,6 @@
-import 'package:HappyHelper/model/villager.dart';
-import 'package:HappyHelper/service/firebase_service.dart';
-import 'package:HappyHelper/widgets/NookCard.dart';
+import 'package:happy_helper/model/villager.dart';
+import 'package:happy_helper/service/firebase_service.dart';
+import 'package:happy_helper/widgets/NookCard.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
@@ -154,7 +154,7 @@ class VillagersState extends State<Villagers> {
                     child: Center(
                         child: Text(
                   "No Items Found",
-                  style: Theme.of(context).textTheme.subtitle,
+                  style: Theme.of(context).textTheme.subtitle1,
                 ))),
               Expanded(
                   child: AnimationLimiter(
@@ -364,183 +364,176 @@ class SingleFlipCardState extends State<SingleFlipCard>
     return WillPopScope(
       onWillPop: () {
         if (!cardKey.currentState.isFront) {
-          cardKey.currentState
-              .toggleCard(callback: () => Navigator.pop(context));
+          cardKey.currentState.toggleCard(() => Navigator.pop(context));
         } else {
           Navigator.pop(context);
         }
+        return Future.value(false);
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: GestureDetector(
-          child: Center(
-            child: Hero(
-              tag: "VillagerPopup$key",
-              child: Container(
-                color: Colors.transparent,
-                height: 1900.h,
-                width: 1000.w,
-                child: FlipCard(
-                  key: cardKey,
-                  flipOnTouch: false,
-                  direction: FlipDirection.HORIZONTAL,
-                  front: NookCard(
-                    backgroundColour: Villager.villagerColors[key],
-                    onTapFunc: () => {Navigator.pop(context)},
-                    builder: (BuildContext context) {
-                      return Expanded(
-                        child: Image(
-                            image:
-                                AssetImage("assets/images/villagers/$key.png")),
-                      );
-                    },
-                  ),
-                  back: NookCard(
-                    onTapFunc: () {
-                      cardKey.currentState
-                          .toggleCard(callback: () => Navigator.pop(context));
-                    },
-                    backgroundColour:
-                        Villager.villagerColors[widget.villager.key],
-                    builder: (BuildContext context) {
-                      return Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          children: <Widget>[
-                            Text(
-                              widget.villager.name,
-                              style: TextStyle(
-                                  fontSize: 120.w,
-                                  decoration: TextDecoration.underline),
-                            ),
-                            Flex(
-                              direction: Axis.horizontal,
-                              children: [
-                                Expanded(
-                                    child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: <Widget>[
-                                    _leftRightRow(
-                                        "Gender", widget.villager.gender),
-                                    _leftRightRow(
-                                        "Birthday", widget.villager.birthday),
-                                    _leftRightRow("Personality",
-                                        widget.villager.personality),
-                                    _leftRightRow(
-                                        "Species", widget.villager.species),
-                                    _leftRightRow("Phrase",
-                                        "\"" + widget.villager.phrase + "\""),
-                                  ],
-                                )),
-                              ],
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(top:20),
-                                child: Material(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(25)),
-                                  color: Color(0x20000000),
-                                  child: SingleChildScrollView(
-                                    child: Padding(
-                                      padding: EdgeInsets.all(20),
-                                      child: Text(
-                                        widget.villager.description,
-                                        style: TextStyle(fontSize: 50.w),
-                                        textAlign: TextAlign.justify,
-                                      ),
+          child: Hero(
+            tag: "VillagerPopup$key",
+            child: Container(
+              color: Colors.transparent,
+              height: 1900.h,
+              width: 1000.w,
+              child: FlipCard(
+                key: cardKey,
+                flipOnTouch: false,
+                direction: FlipDirection.HORIZONTAL,
+                front: NookCard(
+                  backgroundColour: Villager.villagerColors[key],
+                  onTapFunc: () => {Navigator.pop(context)},
+                  builder: (BuildContext context) {
+                    return Expanded(
+                      child: Image(
+                          image:
+                              AssetImage("assets/images/villagers/$key.png")),
+                    );
+                  },
+                ),
+                back: NookCard(
+                  onTapFunc: () {
+                    cardKey.currentState
+                        .toggleCard(() => Navigator.pop(context));
+                  },
+                  backgroundColour:
+                      Villager.villagerColors[widget.villager.key],
+                  builder: (BuildContext context) {
+                    return Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            widget.villager.name,
+                            style: TextStyle(
+                                fontSize: 120.w,
+                                decoration: TextDecoration.underline),
+                          ),
+                          Flex(
+                            direction: Axis.horizontal,
+                            children: [
+                              Expanded(
+                                  child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  _leftRightRow(
+                                      "Gender", widget.villager.gender),
+                                  _leftRightRow(
+                                      "Birthday", widget.villager.birthday),
+                                  _leftRightRow("Personality",
+                                      widget.villager.personality),
+                                  _leftRightRow(
+                                      "Species", widget.villager.species),
+                                  _leftRightRow("Phrase",
+                                      "\"" + widget.villager.phrase + "\""),
+                                ],
+                              )),
+                            ],
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: Material(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(25)),
+                                color: Color(0x20000000),
+                                child: SingleChildScrollView(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: Text(
+                                      widget.villager.description,
+                                      style: TextStyle(fontSize: 50.w),
+                                      textAlign: TextAlign.justify,
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                            Divider(
-                              color: Colors.transparent,
-                            ),
-                            Row(
+                          ),
+                          Divider(
+                            color: Colors.transparent,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              NookChip(
+                                countryCode: 'JP',
+                                label: widget.villager.nameJP,
+                              ),
+                              NookChip(
+                                countryCode: 'KR',
+                                label: widget.villager.nameKR,
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: <Widget>[
                                 NookChip(
-                                  countryCode: 'JP',
-                                  label: widget.villager.nameJP,
+                                  countryCode: 'FR',
+                                  label: widget.villager.nameFR,
                                 ),
                                 NookChip(
-                                  countryCode: 'KR',
-                                  label: widget.villager.nameKR,
+                                  countryCode: 'IT',
+                                  label: widget.villager.nameIT,
                                 ),
                               ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  NookChip(
-                                    countryCode: 'FR',
-                                    label: widget.villager.nameFR,
-                                  ),
-                                  NookChip(
-                                    countryCode: 'IT',
-                                    label: widget.villager.nameIT,
-                                  ),
-                                ],
-                              ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                NookChip(
+                                  countryCode: 'DE',
+                                  label: widget.villager.nameDE,
+                                ),
+                                NookChip(
+                                  countryCode: 'NL',
+                                  label: widget.villager.nameNL,
+                                ),
+                              ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 5.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  NookChip(
-                                    countryCode: 'DE',
-                                    label: widget.villager.nameDE,
-                                  ),
-                                  NookChip(
-                                    countryCode: 'NL',
-                                    label: widget.villager.nameNL,
-                                  ),
-                                ],
-                              ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                NookChip(
+                                  countryCode: 'ES',
+                                  label: widget.villager.nameES,
+                                ),
+                                NookChip(
+                                  countryCode: 'CN',
+                                  label: widget.villager.nameCN,
+                                ),
+                              ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 5.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  NookChip(
-                                    countryCode: 'ES',
-                                    label: widget.villager.nameES,
-                                  ),
-                                  NookChip(
-                                    countryCode: 'CN',
-                                    label: widget.villager.nameCN,
-                                  ),
-                                ],
-                              ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                NookChip(
+                                  countryCode: 'RU',
+                                  label: widget.villager.nameRU,
+                                ),
+                              ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 5.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  
-                                  NookChip(
-                                    countryCode: 'RU',
-                                    label: widget.villager.nameRU,
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                          )
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -583,7 +576,10 @@ class NookChip extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Flags.getMiniFlag(countryCode, 42.w, null),
+            Flag(
+              countryCode,
+              width: 42.w,
+            ),
             Text(
               label,
               style: TextStyle(fontSize: 42.w),

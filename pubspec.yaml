@@ -1,4 +1,4 @@
-name: HappyHelper
+name: happy_helper
 description: Animal Crossing companion app.
 
 # The following defines the version and build number for your application.
@@ -50,11 +50,13 @@ dependencies:
 #------------ after layout ----------
   after_layout: ^1.0.7+2
 #---------------- flags -------------
-  flag: ^1.0.3
+  flag: ^3.1.0
 #----------- device preview ---------
   device_preview: ^0.4.4
 #--------------- rulers -------------
   rulers: ^1.0.0
+#------- cached network image --------
+  cached_network_image: ^2.3.3
 
 dev_dependencies:
   flutter_test:

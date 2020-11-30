@@ -1,14 +1,14 @@
-import 'package:HappyHelper/service/basket_service.dart';
-import 'package:HappyHelper/service/item_service.dart';
-import 'package:HappyHelper/widgets/NookCard.dart';
+import 'package:happy_helper/service/basket_service.dart';
+import 'package:happy_helper/service/item_service.dart';
+import 'package:happy_helper/widgets/NookCard.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:HappyHelper/model/furniture.dart';
-import 'package:HappyHelper/service/firebase_service.dart';
+import 'package:happy_helper/model/furniture.dart';
+import 'package:happy_helper/service/firebase_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badges/badges.dart';
 import 'package:flutter_counter/flutter_counter.dart';
@@ -178,7 +178,7 @@ class _CraftingState extends State<Crafting> {
                         child: Center(
                             child: Text(
                       "No Items Found",
-                      style: Theme.of(context).textTheme.subtitle,
+                      style: Theme.of(context).textTheme.subtitle1,
                     ))),
                   Expanded(
                       child: AnimationLimiter(
@@ -284,11 +284,12 @@ class SingleFlipCardState extends State<SingleFlipCard>
         return WillPopScope(
           onWillPop: () {
             if (!cardKey.currentState.isFront) {
-              cardKey.currentState
-                  .toggleCard(callback: () => Navigator.pop(context));
+              cardKey.currentState.toggleCard(() => Navigator.pop(context));
             } else {
               Navigator.pop(context);
             }
+
+            return Future.value(false);
           },
           child: Scaffold(
             backgroundColor: Colors.transparent,
@@ -314,8 +315,8 @@ class SingleFlipCardState extends State<SingleFlipCard>
                       ),
                       back: NookCard(
                         onTapFunc: () {
-                          cardKey.currentState.toggleCard(
-                              callback: () => Navigator.pop(context));
+                          cardKey.currentState
+                              .toggleCard(() => Navigator.pop(context));
                         },
                         builder: (BuildContext context) {
                           return Padding(
@@ -327,13 +328,14 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                     padding: const EdgeInsets.only(
                                         top: 15, bottom: 15),
                                     child: Text(
-                                      widget.furniture.name ?? "[UNKNOWN]",
+                                      widget.furniture.name,
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline1
                                           .copyWith(
-                                              fontSize:
-                                                  ScreenUtil().setSp(100)),
+                                              fontSize: ScreenUtil()
+                                                  .setSp(100)
+                                                  .toDouble()),
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
@@ -348,8 +350,6 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                   ),
                                 ),
                                 Counter(
-                                  valueSpacing: 110.w,
-                                  textTopPadding: 10.w,
                                   textStyle: TextStyle(
                                       fontSize: ScreenUtil().setSp(70),
                                       color: Theme.of(context).primaryColor),
@@ -385,8 +385,7 @@ class SingleFlipCardState extends State<SingleFlipCard>
                                         _initialCraftingCount);
                                     if (!cardKey.currentState.isFront) {
                                       cardKey.currentState.toggleCard(
-                                          callback: () =>
-                                              Navigator.pop(context));
+                                          () => Navigator.pop(context));
                                     } else {
                                       Navigator.pop(context);
                                     }

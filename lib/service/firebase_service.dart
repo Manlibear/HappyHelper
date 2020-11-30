@@ -1,8 +1,8 @@
-import 'package:HappyHelper/model/villager.dart';
+import 'package:happy_helper/model/villager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:HappyHelper/model/furniture.dart';
-import 'package:HappyHelper/model/critter.dart';
+import 'package:happy_helper/model/furniture.dart';
+import 'package:happy_helper/model/critter.dart';
 
 class FirebaseService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;

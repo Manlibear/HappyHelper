@@ -1,3 +1,7 @@
+import 'package:happy_helper/model/critter.dart';
+import 'package:happy_helper/model/villager.dart';
+import 'package:happy_helper/model/furniture.dart';
+
 class HelperService {
   static String monthNameFromNumber(int number) {
     switch (number) {
@@ -28,5 +32,26 @@ class HelperService {
     }
 
     return number.toString();
+  }
+
+  /// If T is a List, K is the subtype of the list.
+  static T fromJson<T, K>(dynamic json) {
+    if (json is Iterable) {
+      return _fromJsonList<K>(json) as T;
+    } else if (T == Critter) {
+      return Critter.fromJson(json) as T;
+    } else if (T == Villager) {
+      return Villager.fromJson(json) as T;
+    } else if (T == Furniture) {
+      return Furniture.fromJson(json) as T;
+    } else {
+      throw Exception("Unknown class: $T");
+    }
+  }
+
+  static List<K> _fromJsonList<K>(List<dynamic> jsonList) {
+    return jsonList
+        ?.map<K>((dynamic json) => fromJson<K, void>(json))
+        ?.toList();
   }
 }
